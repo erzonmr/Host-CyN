@@ -1,0 +1,198 @@
+body {
+    line-height: 1.6;
+    color: #333;
+}
+
+/* Contenedor para la imagen y la información */
+.song-header {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+/* Estilos para la imagen */
+.song-image {
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-right: 20px;
+}
+
+/* Contenedor para título, subtítulo, álbum y año */
+.song-info div {
+    line-height: 1em;
+    margin-bottom: 2px;
+}
+
+.song-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 90px;
+}
+
+/* Metadata */
+.chordpro-section-label,
+.chordpro-metadata {
+    font-size: 1em;
+    margin: 0em 0;
+}
+
+.chordpro-title {
+    font-size: 2em;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.chordpro-subtitle {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #ab2224;
+    margin-top: 0;
+    margin-bottom: 0px;
+}
+
+/* Estilos modificados para Tono y E */
+.chordpro-key {
+    display: flex;
+    align-items: center;
+    font-size: 1em;
+    margin: 1em 0;
+    line-height: 1.2em;
+    font-weight: bold;
+}
+
+/* Estilo para "Tono" */
+.chordpro-metadata-name {
+    background-color: #3F3F3F;
+    color: white;
+    padding: 2px 4px;
+    border-radius: 5px;
+    margin-right: 5px;
+}
+
+/* Estilo para "E" */
+.chordpro-metadata-value {
+    background-color: #ab2224;
+    color: #FFFFFF;
+    padding: 2px 4px;
+    border-radius: 5px;
+}
+
+.chordpro-metadata-year_album-value {
+    font-weight: bold;
+}
+
+.chordpro-tab {
+    font-family: monospace;
+}
+
+/* Lines & Chorus */
+.chordpro-line {
+    height: 2.5em;
+    margin-bottom: 0.3em;
+}
+
+.chordpro-line-text-only, .chordpro-line-chords-only {
+    height: 1.5em;
+}
+
+.chordpro-chorus {
+    padding-left: 10px;
+    padding-bottom: 3px;
+    border-left: 3px solid #3F3F3F;
+}
+
+.chordpro-block {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 0;
+}
+
+.chordpro-chord {
+    position: relative;
+    display: inline-block;
+    padding: 0px 4px;
+    margin-right: 3px;
+    font-weight: bold;
+    font-size: 1em;
+    color: #ab2224;
+    background-color: #FFEBEE;
+    border-radius: 3px;
+    top: 0.2em;
+    line-height: 1.2;
+}
+
+.chordpro-text {
+    position: relative;
+    display: block;
+    top: -0.2em;
+}
+
+/* Estilo modificado para VERSO y CORO con altura reducida y esquinas redondeadas */
+.chordpro-metadata.chordpro-comment {
+    background-color: #3F3F3F;
+    color: #fff;
+    padding: 2px 4px;
+    font-weight: bold;
+    max-width: 25%;
+    display: inline-block;
+    line-height: 1.2em;
+    border-radius: 5px;
+}
+
+.chordpro-section {
+    margin-bottom: 0em;
+}
+
+/* Contenedor de los controles de la canción */
+.song-controls {
+    display: inline-flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin: 0px 0;
+    padding: 7px;
+    background-color: #f7f7f7; /* Fondo blanco */
+    border-radius: 5px;
+    gap: 10px;
+    width: auto;
+}
+
+/* Contenedor para los botones de transposición */
+.transpose-buttons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Estilo unificado para todos los botones */
+.button,
+.transposition-controls button,
+.download-btn {
+    padding: 8px 15px;
+    margin: 0;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 25px;
+    width: auto; /* Ajusta el ancho dinámicamente */
+    box-sizing: border-box;
+    line-height: 1;
+    background-color: #e1e1e1; /* Fondo blanco */
+    color: inherit; /* Texto por defecto en la plantilla */
+}
+
+/* Efecto hover para los botones */
+.button:hover,
+.transposition-controls button:hover,
+.download-btn:hover {
+    background-color: #cdcdcd; /* Fondo gris claro al pasar el cursor */
+}
