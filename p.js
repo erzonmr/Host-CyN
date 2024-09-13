@@ -1,46 +1,88 @@
-function getUrlParameter(name) {
-    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-    var results = regex.exec(location.search);
-    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-}
+var allLabels = [];
+var filteredAuthors = [];
 
-function loadAuthorPosts(author) {
+function fetchLabels(filterParam) {
   $.ajax({
-    url: `/feeds/posts/default/-/autor:${author}?alt=json-in-script&max-results=500`,
-    dataType: 'jsonp',
+    url: '/feeds/posts/summary?alt=json&max-results=0',
+    dataType: 'json',
     success: function(data) {
-      displayAuthorPosts(data, author);
-    },
-    error: function() {
-      $('#songsList').html('<p>Error al cargar las canciones. Intenta nuevamente más tarde.</p>');
+      if (data.feed.category) {
+        allLabels = allLabels.concat(data.feed.category.map(cat => cat.term));
+      }
+      if (data.feed.openSearch$totalResults.$t > allLabels.length) {
+        var pageToken = data.feed.openSearch$startIndex.$t + data.feed.openSearch$itemsPerPage.$t;
+        fetchLabelsWithToken(pageToken, filterParam);
+      } else {
+        filterAuthors(filterParam);
+      }
     }
   });
 }
 
-function displayAuthorPosts(json, author) {
-  var postList = `<h2>Canciones de ${author}</h2>`;
-  if (json.feed.entry && json.feed.entry.length > 0) {
-    var songs = json.feed.entry.map(entry => ({
-      title: entry.title.$t,
-      url: entry.link.find(link => link.rel === 'alternate').href
-    }));
-    
-    songs.sort((a, b) => a.title.localeCompare(b.title, 'es', { sensitivity: 'base' }));
+function fetchLabelsWithToken(pageToken, filterParam) {
+  $.ajax({
+    url: '/feeds/posts/summary?alt=json&max-results=0&start-index=' + pageToken,
+    dataType: 'json',
+    success: function(data) {
+      if (data.feed.category) {
+        allLabels = allLabels.concat(data.feed.category.map(cat => cat.term));
+      }
+      if (data.feed.openSearch$totalResults.$t > allLabels.length) {
+        pageToken = data.feed.openSearch$startIndex.$t + data.feed.openSearch$itemsPerPage.$t;
+        fetchLabelsWithToken(pageToken, filterParam);
+      } else {
+        filterAuthors(filterParam);
+      }
+    }
+  });
+}
 
-    var listItems = songs.map(song => `<li style="margin-bottom: 5px;">• <a href="${song.url}">${song.title}</a></li>`).join('');
-    postList += `<ul style="list-style-type: none; padding-left: 0;">${listItems}</ul>`;
+function filterAuthors(filterParam) {
+  // Convertir el filtro en un array de letras/números
+  var filters = filterParam.split(',').map(f => f.trim().toLowerCase());
+
+  // Filtrar autores según las letras o números ingresados
+  filteredAuthors = allLabels.filter(label => {
+    if (!label.startsWith('autor:')) return false;
+    var authorName = label.substring(6).toLowerCase(); // Remueve 'autor:' y convierte a minúsculas
+
+    // Filtra por las letras o números proporcionados
+    return filters.some(filter => authorName.startsWith(filter));
+  }).map(label => label.substring(6)); // Eliminar prefijo 'autor:'
+
+  // Remover duplicados
+  filteredAuthors = [...new Set(filteredAuthors)];
+
+  // Ordenar alfabéticamente
+  filteredAuthors.sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
+
+  // Mostrar autores en el DOM
+  displayAuthors();
+}
+
+function displayAuthors() {
+  var authorsList = `<h2>Autores filtrados</h2>`;
+  if (filteredAuthors.length > 0) {
+    authorsList += '<ul style="list-style-type: none; padding-left: 0;">';
+    filteredAuthors.forEach(author => {
+      authorsList += `<li style="margin-bottom: 5px;">• <a href="/p/results.html?autor=${encodeURIComponent(author)}" target="_blank">${author}</a></li>`;
+    });
+    authorsList += '</ul>';
   } else {
-    postList += '<p>No se encontraron canciones para este autor.</p>';
+    authorsList += '<p>No se encontraron autores con los filtros proporcionados.</p>';
   }
-  $('#songsList').html(postList);
+  $('#authorsList').html(authorsList);
 }
 
 $(document).ready(function() {
-  var author = getUrlParameter('autor');
-  if (author && /^[a-zA-Z0-9 ]+$/.test(author)) {
-    loadAuthorPosts(author);
+  // Obtener el valor de filtro desde el atributo data del div
+  var filterParam = $('#authorsList').data('filter');
+  
+  if (filterParam) {
+    allLabels = [];  // Reiniciar lista de etiquetas
+    filteredAuthors = [];
+    fetchLabels(filterParam); // Iniciar la búsqueda con el filtro proporcionado
   } else {
-    $('#songsList').html('<p>El nombre del autor no es válido o no se especificó ningún autor.</p>');
+    $('#authorsList').html('<p>No se ha definido ningún filtro.</p>');
   }
 });
