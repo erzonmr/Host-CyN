@@ -1,8 +1,11 @@
+// Variables globales para las etiquetas y los autores filtrados
 var allLabels = [];
 var filteredAuthors = [];
 
-// Esta función hace la solicitud de etiquetas (labels) y luego las filtra según los criterios pasados
-function fetchLabels(criteria) {
+// Obtener los criterios predefinidos del atributo data-filter en el HTML
+var predefinedFilterCriteria = $('#filterCriteriaContainer').data('filter').split(',').map(c => c.trim());
+
+function fetchLabels() {
   $.ajax({
     url: '/feeds/posts/summary?alt=json&max-results=0',
     dataType: 'json',
@@ -12,15 +15,15 @@ function fetchLabels(criteria) {
       }
       if (data.feed.openSearch$totalResults.$t > allLabels.length) {
         var pageToken = data.feed.openSearch$startIndex.$t + data.feed.openSearch$itemsPerPage.$t;
-        fetchLabelsWithToken(pageToken, criteria);
+        fetchLabelsWithToken(pageToken);
       } else {
-        filterAuthors(criteria);
+        filterAuthors();
       }
     }
   });
 }
 
-function fetchLabelsWithToken(pageToken, criteria) {
+function fetchLabelsWithToken(pageToken) {
   $.ajax({
     url: '/feeds/posts/summary?alt=json&max-results=0&start-index=' + pageToken,
     dataType: 'json',
@@ -30,47 +33,46 @@ function fetchLabelsWithToken(pageToken, criteria) {
       }
       if (data.feed.openSearch$totalResults.$t > allLabels.length) {
         pageToken = data.feed.openSearch$startIndex.$t + data.feed.openSearch$itemsPerPage.$t;
-        fetchLabelsWithToken(pageToken, criteria);
+        fetchLabelsWithToken(pageToken);
       } else {
-        filterAuthors(criteria);
+        filterAuthors();
       }
     }
   });
 }
 
-function filterAuthors(criteria) {
-  // Filtramos etiquetas que comiencen con 'autor:' y que coincidan con alguno de los criterios
+// Función para filtrar autores según las letras o números predefinidos
+function filterAuthors() {
+  var criteria = predefinedFilterCriteria.map(c => c.toLowerCase());
+  
+  // Filtrar etiquetas que empiecen con alguno de los criterios especificados
   filteredAuthors = allLabels.filter(label => {
     if (!label.startsWith('autor:')) return false;
-    var authorName = label.substring(6); // Eliminar el prefijo 'autor:'
-    return criteria.some(criterion => 
-      authorName.toLowerCase().startsWith(criterion.toLowerCase()) || 
-      authorName.toLowerCase().startsWith(removeAccents(criterion.toLowerCase()))
-    );
-  }).map(label => label.substring(6)); // Remover 'autor:'
+    var authorName = label.substring(6).toLowerCase(); // Quitar prefijo 'autor:'
+    
+    // Revisar si el nombre del autor comienza con alguno de los criterios predefinidos (letras/números)
+    return criteria.some(c => authorName.startsWith(c) || authorName.startsWith(removeAccents(c)));
+  }).map(label => label.substring(6)); // Eliminar prefijo 'autor:'
 
-  // Remover duplicados
+  // Eliminar duplicados
   filteredAuthors = [...new Set(filteredAuthors)];
 
-  // Ordenar: Si comienza con números, ordena numéricamente, sino alfabéticamente
-  filteredAuthors.sort((a, b) => {
-    const isANumeric = /^\d/.test(a);
-    const isBNumeric = /^\d/.test(b);
-    if (isANumeric && isBNumeric) {
-      return parseInt(a) - parseInt(b);
-    }
-    return a.localeCompare(b, 'es', { sensitivity: 'base' });
-  });
+  // Ordenar alfabéticamente o numéricamente según el caso
+  filteredAuthors.sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
 
-  displayAuthors(criteria);
+  displayAuthors();
 }
 
+// Función para remover acentos de los nombres
 function removeAccents(str) {
   return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
-function displayAuthors(criteria) {
-  var authorsList = `<h2>Autores filtrados por: ${criteria.join(', ')}</h2>`;
+// Mostrar la lista de autores filtrados
+function displayAuthors() {
+  var filterCriteria = predefinedFilterCriteria.join(', ');
+  var authorsList = `<h2>Autores que empiezan por "${filterCriteria}"</h2>`;
+  
   if (filteredAuthors.length > 0) {
     authorsList += '<ul style="list-style-type: none; padding-left: 0;">';
     filteredAuthors.forEach(author => {
@@ -78,12 +80,13 @@ function displayAuthors(criteria) {
     });
     authorsList += '</ul>';
   } else {
-    authorsList += '<p>No se encontraron autores con los criterios especificados.</p>';
+    authorsList += '<p>No se encontraron autores que empiecen con los criterios especificados.</p>';
   }
+  
   $('#authorsList').html(authorsList);
 }
 
-// Esta función se ejecuta automáticamente con los criterios definidos en el backend o HTML
-function loadAuthors(criteria) {
-  fetchLabels(criteria);
-}
+// Inicializar la aplicación y cargar etiquetas automáticamente
+$(document).ready(function() {
+  fetchLabels(); // Recargar etiquetas y aplicar filtro predefinido
+});
