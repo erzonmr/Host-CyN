@@ -63,7 +63,7 @@ function filterAuthors(filterParam) {
 function displayAuthors() {
   var authorsList = `<h2>Autores filtrados</h2>`;
   if (filteredAuthors.length > 0) {
-    authorsList += '<ul style="list-style-type: none; padding-left: 0;">';
+    authorsList += '<ul style="padding-left: 20px;">'; // Eliminamos list-style-type: none;
     filteredAuthors.forEach(author => {
       authorsList += `<li style="margin-bottom: 5px;"><a href="/p/results.html?autor=${encodeURIComponent(author)}" target="_blank">${author}</a></li>`;
     });
