@@ -57,7 +57,7 @@ function displayAuthors() {
   if (filteredAuthors.length > 0) {
     authorsList += '<ul style="padding-left: 20px;">';
     filteredAuthors.forEach(author => {
-      authorsList += `<li style="margin-bottom: 5px;"><a href="/p/results.html?autor=${encodeURIComponent(author)}" target="_blank">${author}</a></li>`;
+      authorsList += `<li style="margin-bottom: 5px;"><a href="/p/results.html?autor=${encodeURIComponent(author)}" target="_blank" style="font-weight: bold;">${author}</a></li>`;
     });
     authorsList += '</ul>';
   } else {
