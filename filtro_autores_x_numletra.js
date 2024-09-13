@@ -38,32 +38,24 @@ function fetchLabelsWithToken(pageToken, filterParam) {
 }
 
 function filterAuthors(filterParam) {
-  // Convertir el filtro en un array de letras/números
   var filters = filterParam.split(',').map(f => f.trim().toLowerCase());
 
-  // Filtrar autores según las letras o números ingresados
   filteredAuthors = allLabels.filter(label => {
     if (!label.startsWith('autor:')) return false;
-    var authorName = label.substring(6).toLowerCase(); // Remueve 'autor:' y convierte a minúsculas
-
-    // Filtra por las letras o números proporcionados
+    var authorName = label.substring(6).toLowerCase();
     return filters.some(filter => authorName.startsWith(filter));
-  }).map(label => label.substring(6)); // Eliminar prefijo 'autor:'
+  }).map(label => label.substring(6));
 
-  // Remover duplicados
   filteredAuthors = [...new Set(filteredAuthors)];
-
-  // Ordenar alfabéticamente
   filteredAuthors.sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
 
-  // Mostrar autores en el DOM
   displayAuthors();
 }
 
 function displayAuthors() {
-  var authorsList = `<h2>Autores filtrados</h2>`;
+  var authorsList = '';
   if (filteredAuthors.length > 0) {
-    authorsList += '<ul style="padding-left: 20px;">'; // Eliminamos list-style-type: none;
+    authorsList += '<ul style="padding-left: 20px;">';
     filteredAuthors.forEach(author => {
       authorsList += `<li style="margin-bottom: 5px;"><a href="/p/results.html?autor=${encodeURIComponent(author)}" target="_blank">${author}</a></li>`;
     });
@@ -75,13 +67,12 @@ function displayAuthors() {
 }
 
 $(document).ready(function() {
-  // Obtener el valor de filtro desde el atributo data del div
   var filterParam = $('#authorsList').data('filter');
-  
+
   if (filterParam) {
-    allLabels = [];  // Reiniciar lista de etiquetas
+    allLabels = [];
     filteredAuthors = [];
-    fetchLabels(filterParam); // Iniciar la búsqueda con el filtro proporcionado
+    fetchLabels(filterParam);
   } else {
     $('#authorsList').html('<p>No se ha definido ningún filtro.</p>');
   }
