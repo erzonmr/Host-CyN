@@ -1,0 +1,1 @@
+document.querySelectorAll('.tag-link').forEach(function(link){link.addEventListener('click',function(event){event.preventDefault();const tag=link.querySelector('b').textContent.trim();const newHref=`/p/results.html?tag=${encodeURIComponent(tag)}`;window.open(newHref,'_blank')})})
